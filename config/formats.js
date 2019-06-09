@@ -67,9 +67,6 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] OU'],
 		banlist: ['OU', 'UUBL', 'Drizzle', 'Drought', 'Kommonium Z', 'Mewnium Z'],
-		onBegin() {
-			if (this.rated && this.format === 'gen7uu') this.add('html', `<div class="broadcast-red"><strong>UU is currently suspecting Scizor! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3650487/">suspect thread</a>.</strong></div>`);
-		},
 	},
 	{
 		name: "[Gen 7] RU",
@@ -82,19 +79,22 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] UU'],
 		banlist: ['UU', 'RUBL', 'Aurora Veil'],
-		unbanlist: ['Stakataka', 'Drought'],
+		unbanlist: ['Talonflame', 'Drought'],
 	},
 	{
 		name: "[Gen 7] NU",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3650028/">NU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3650934/">NU Metagame Discussion</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3645166/">NU Viability Rankings</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3632667/">NU Sample Teams</a>`,
 		],
 
 		mod: 'gen7',
 		ruleset: ['[Gen 7] RU'],
-		banlist: ['RU', 'NUBL', 'Stakataka', 'Drought'],
+		banlist: ['RU', 'NUBL', 'Talonflame', 'Drought'],
+		onBegin() {
+			if (this.rated && this.format === 'gen7nu') this.add('html', `<div class="broadcast-red"><strong>NU is currently suspecting Vileplume! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3650934/">suspect thread</a>.</strong></div>`);
+		},
 	},
 	{
 		name: "[Gen 7] PU",
@@ -221,7 +221,7 @@ let Formats = [
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3621207/">CAP Metagame Discussion</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3626018/">CAP Viability Rankings</a>`,
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3634419/">CAP Sample Teams</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3648521/">CAP Sample Teams</a>`,
 		],
 
 		mod: 'gen7',

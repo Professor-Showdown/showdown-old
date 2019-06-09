@@ -4367,6 +4367,7 @@ const commands = {
 			let targetUser = Users.get(target);
 			if (!trustable || !targetUser) {
 				connection.send('|queryresponse|userdetails|' + JSON.stringify({
+					id: target,
 					userid: toID(target),
 					rooms: false,
 				}));
@@ -4394,12 +4395,14 @@ const commands = {
 			}
 			if (!targetUser.connected) roomList = false;
 			let userdetails = {
+				id: target,
 				userid: targetUser.userid,
 				avatar: targetUser.avatar,
 				group: targetUser.group,
 				autoconfirmed: !!targetUser.autoconfirmed,
 				rooms: roomList,
 			};
+			if (targetUser.userid !== target) userdetails.name = targetUser.name;
 			connection.send('|queryresponse|userdetails|' + JSON.stringify(userdetails));
 		} else if (cmd === 'roomlist') {
 			if (!trustable) return false;
@@ -4420,8 +4423,11 @@ const commands = {
 			if (!trustable) return false;
 
 			let targetRoom = Rooms.get(target);
-			if (!targetRoom || targetRoom === Rooms.global) return false;
-			if (targetRoom.isPrivate && !user.inRooms.has(targetRoom.id) && !user.games.has(targetRoom.id)) {
+			if (!targetRoom || targetRoom === Rooms.global || (
+				targetRoom.isPrivate && !user.inRooms.has(targetRoom.id) && !user.games.has(targetRoom.id)
+			)) {
+				const roominfo = {id: target, error: 'not found or access denied'};
+				connection.send(`|queryresponse|roominfo|${JSON.stringify(roominfo)}`);
 				return false;
 			}
 
@@ -4433,7 +4439,8 @@ const commands = {
 			}
 
 			let roominfo = {
-				id: targetRoom.id,
+				id: target,
+				roomid: targetRoom.id,
 				title: targetRoom.title,
 				type: targetRoom.type,
 				visibility: visibility,
