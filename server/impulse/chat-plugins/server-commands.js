@@ -694,8 +694,39 @@ exports.commands = {
 		user.updateIdentity();
 		return this.sendReply("You are now showing your authority!");
 	},
+        // System Credits
+        credits: function (target, room, user) {
+		let popup = "|html|" + "<font size=5 color=#0066ff><u>" + serverName + " Credits</b></u></font><br />" +
+			"<br />" +
+			"<u><b>Server Maintainers:</u></b><br />" +
+			"- " + Server.nameColor('Prince Sky', true) + " (Owner, System Operator, Policy Admin, Development, CSS)<br />" +
+			"<br />" +
+			"<u><b>Contributors:</b></u><br />" +
+			"- " + Server.nameColor('Shivay', true) + " (System Operator, Development)<br />" +
+			"- " + Server.nameColor('Pokemon 1920', true) + " (Server Admin, Community Admin, Art)<br />" +
+			"- " + Server.nameColor('A Flying Phantom', true) + " (Server Admin, Development, CSS)<br/>" +
+			/*"- " + Server.nameColor('Electric Z', true) + " (Policy Admin)<br />" +
+			"- " + Server.nameColor('Opple', true) + " (Community Leader)<br />" +
+			"- " + Server.nameColor('Perison', true) + " (Community Admin)<br/>" +
+			"- " + Server.nameColor('Volco', true) + " (Technical Leader, Development)<br />" +*/
+			"<br />" +
+		/*"<u><b>Contributors:</b></u><br />" +
+			"- " + Server.nameColor('Ashley the Pikachu', true) + " (Spriting, Digimon Project)<br />" +
+			"- " + Server.nameColor('Insist', true) + " (Development)<br />" +
+			"- " + Server.nameColor('SSBN-640', true) + " (Development)<br />" +
+			"- " + Server.nameColor('wgc', true) + " (Development)<br />" +
+			"<br />" +*/
+			"<u><b>Retired Staff:</b></u><br />" +
+			"- " + Server.nameColor('Anrin N', true) + " (Former Owner, System Operator, Development)<br />" +
+			"<br />" +
+			"<u><b>Special Thanks:</b></u><br />" +
+			"- Our Staff Members<br />" +
+			"- Our Regular Users<br />" +
+			"- All Custom Plugins Creators.<br />";
+		user.popup(popup);
+	},
 	
-	// Random PokÃ©mon
+	// Random Pokemon
 	randp: "randompokemon",
     randompokemon: function (target) {
 		if (!this.runBroadcast()) return;
