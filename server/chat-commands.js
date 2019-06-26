@@ -2693,14 +2693,18 @@ const commands = {
 	],
 
 	nl: 'namelock',
-	namelock(target, room, user) {
+	forcenamelock: 'namelock',
+	namelock(target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help namelock');
 
-		let reason = this.splitTarget(target, true);
+		let reason = this.splitTarget(target);
 		let targetUser = this.targetUser;
 
 		if (!targetUser) {
 			return this.errorReply(`User '${this.targetUsername}' not found.`);
+		}
+		if (targetUser.userid !== toID(this.inputUsername) && cmd !== 'forcenamelock') {
+			return this.errorReply(`${this.inputUsername} has already changed their name to ${targetUser.name}. To namelock anyway, use /forcenamelock.`);
 		}
 		if (!this.can('forcerename', targetUser)) return false;
 		if (targetUser.namelocked) return this.errorReply(`User '${targetUser.name}' is already namelocked.`);
@@ -4031,8 +4035,13 @@ const commands = {
 		const battle = room.battle;
 		// retrieve spectator log (0) if there are privacy concerns
 		const format = Dex.getFormat(room.format, true);
+
+		// custom games always show full details
+		// random-team battles show full details if the battle is ended
+		// otherwise, don't show full details
 		let hideDetails = !format.id.includes('customgame');
-		if (!format.team && battle.ended) hideDetails = false;
+		if (format.team && battle.ended) hideDetails = false;
+
 		const data = room.getLog(hideDetails ? 0 : -1);
 		const datahash = crypto.createHash('md5').update(data.replace(/[^(\x20-\x7F)]+/g, '')).digest('hex');
 		let rating = 0;
@@ -4076,11 +4085,16 @@ const commands = {
 			return this.errorReply(`User ${name} must be in the battle room already.`);
 		}
 		if (!this.can('joinbattle', null, room)) return;
-		if (room.battle[target]) {
+		if (room.battle[target].userid) {
 			return this.errorReply(`This room already has a player in slot ${target}.`);
 		}
 
-		room.battle.addPlayer(targetUser, target);
+		room.auth[targetUser.userid] = Users.PLAYER_SYMBOL;
+		let success = room.battle.joinGame(targetUser, target);
+		if (!success) {
+			delete room.auth[targetUser.userid];
+			return;
+		}
 		this.addModAction(`${name} was added to the battle as Player ${target.slice(1)} by ${user.name}.`);
 		this.modlog('ROOMPLAYER', targetUser.getLastId());
 	},
