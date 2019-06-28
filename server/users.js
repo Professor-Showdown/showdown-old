@@ -461,6 +461,8 @@ class User extends Chat.MessageContext {
 		this.connections = [connection];
 		/**@type {string} */
 		this.latestHost = '';
+		/**@type {string} */
+		this.latestHostType = '';
 		this.ips = Object.create(null);
 		this.ips[connection.ip] = 1;
 		// Note: Using the user's latest IP for anything will usually be
@@ -1066,6 +1068,7 @@ class User extends Chat.MessageContext {
 		oldUser.ips = {};
 		this.latestIp = oldUser.latestIp;
 		this.latestHost = oldUser.latestHost;
+		this.latestHostType = oldUser.latestHostType;
 
 		oldUser.markDisconnected();
 	}

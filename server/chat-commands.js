@@ -3197,7 +3197,9 @@ const commands = {
 				Chat.uncache('./server/punishments');
 				global.Punishments = require('./punishments');
 				this.sendReply("Punishments have been hot-patched.");
-			} else if (target === 'dnsbl' || target === 'datacenters') {
+			} else if (target === 'dnsbl' || target === 'datacenters' || target === 'iptools') {
+				Chat.uncache('./.server-dist/ip-tools');
+				global.IPTools = require('../.server-dist/ip-tools').IPTools;
 				IPTools.loadDatacenters();
 				this.sendReply("IPTools has been hot-patched.");
 			} else if (target.startsWith('disable')) {
@@ -3918,11 +3920,15 @@ const commands = {
 	acceptdraw: 'offertie',
 	accepttie: 'offertie',
 	offerdraw: 'offertie',
+	requesttie: 'offertie',
 	offertie(target, room, user, connection, cmd) {
 		const battle = room.battle;
 		if (!battle) return this.errorReply("Must be in a battle room.");
 		if (!Config.allowrequestingties) {
 			return this.errorReply("This server does not allow offering ties.");
+		}
+		if (room.tour) {
+			return this.errorReply("You can't offer ties in tournaments.");
 		}
 		if (!this.can('roomvoice', null, room)) return;
 		if (cmd === 'accepttie' && !battle.players.some(player => player.wantsTie)) {
