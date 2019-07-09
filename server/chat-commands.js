@@ -758,8 +758,9 @@ const commands = {
 	status(target, room, user, connection, cmd) {
 		if (!this.canTalk()) return;
 		if (!target) return this.parse('/help status');
-		if (!/[a-zA-Z0-9]/.test(target)) return this.errorReply("Your status must contain at least one letter or number.");
-		target = Chat.namefilter(target, user, true);
+
+		if (target.length > 32) return this.errorReply(`Your status is too long; it must be under 32 characters.`);
+		target = Chat.nicknamefilter(target, user, true);
 		if (!target) return this.errorReply("Your status contains a banned word.");
 
 		let statusType = '(Online)';
@@ -777,12 +778,13 @@ const commands = {
 	busy(target, room, user) {
 		if (!this.canTalk()) return;
 
-		let message = Chat.namefilter(target, user, true);
 		if (target) {
-			if (!/[a-zA-Z0-9]/.test(target)) return this.errorReply("Your status must contain at least one letter or number.");
-			if (!message) return this.errorReply("Your status contains a banned word.");
+			if (target.length > 32) return this.errorReply(`Your status is too long; it must be under 32 characters.`);
+			target = Chat.nicknamefilter(target, user, true);
+			if (!target) return this.errorReply("Your status contains a banned word.");
 		}
-		user.setStatus(`(Busy)${message ? ` ${message}` : ''}`);
+
+		user.setStatus(`(Busy)${target ? ` ${target}` : ''}`);
 		this.parse('/blockpms');
 		this.parse('/blockchallenges');
 		this.sendReply("You are now marked as busy.");
@@ -804,9 +806,9 @@ const commands = {
 		}
 
 		if (target) {
-			if (!/[a-zA-Z0-9]/.test(target)) return this.errorReply("Your status must contain at least one letter or number.");
+			if (target.length > 32) return this.errorReply(`Your status is too long; it must be under 32 characters.`);
 
-			awayMessage = Chat.namefilter(target, user, true);
+			awayMessage = Chat.nicknamefilter(target, user, true);
 			if (!awayMessage) return this.errorReply("Your status contains a banned word.");
 		}
 		awayMessage = `(${awayType})${awayMessage ? ` ${awayMessage}` : ''}`;
@@ -999,8 +1001,8 @@ const commands = {
 
 	'!groupchatuptime': true,
 	groupchatuptime(target, room, user) {
+		if (!room || !room.uptime) return this.errorReply("Can only be used in a groupchat.");
 		if (!this.runBroadcast()) return;
-		if (!room.uptime) return this.errorReply("Can only be used in a groupchat.");
 		const uptime = Chat.toDurationString(Date.now() - room.uptime);
 		this.sendReplyBox(`Groupchat uptime: <b>${uptime}</b>`);
 	},
