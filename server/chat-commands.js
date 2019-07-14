@@ -755,8 +755,9 @@ const commands = {
 	},
 	unblockpmshelp: [`/unblockpms - Unblocks private messages. Block them with /blockpms.`],
 
+	'!status': true,
 	status(target, room, user, connection, cmd) {
-		if (!this.canTalk()) return;
+		if (user.locked || user.semilocked) return this.errorReply("Your status cannot be updated while you are locked or semilocked.");
 		if (!target) return this.parse('/help status');
 
 		if (target.length > 32) return this.errorReply(`Your status is too long; it must be under 32 characters.`);
@@ -776,8 +777,7 @@ const commands = {
 
 	'!busy': true,
 	busy(target, room, user) {
-		if (!this.canTalk()) return;
-
+		if (user.locked || user.semilocked) return this.errorReply("Your status cannot be updated while you are locked or semilocked.");
 		if (target) {
 			if (target.length > 32) return this.errorReply(`Your status is too long; it must be under 32 characters.`);
 			target = Chat.nicknamefilter(target, user, true);
@@ -796,7 +796,7 @@ const commands = {
 	afk: 'away',
 	brb: 'away',
 	away(target, room, user, connection, cmd) {
-		if (!this.canTalk()) return;
+		if (user.locked || user.semilocked) return this.errorReply("Your status cannot be updated while you are locked or semilocked.");
 		let awayType = cmd;
 		let awayMessage = '';
 		if (awayType === 'afk' || awayType === 'brb') {
@@ -3374,6 +3374,7 @@ const commands = {
 	widendatacenters: 'adddatacenters',
 	adddatacenters(target, room, user, connection, cmd) {
 		if (!this.can('hotpatch')) return false;
+		if (!target) return this.parse(`/help adddatacenters`);
 		// should be in the format: IP, IP, name, URL
 		let widen = (cmd === 'widendatacenters');
 
@@ -3398,6 +3399,10 @@ const commands = {
 			for (const row of data) {
 				if (!row) continue;
 				let rowSplit = row.split(',');
+				if (rowSplit.length !== 4) {
+					this.errorReply(`Invalid row: ${row}`);
+					continue;
+				}
 				let rowData = [
 					IPTools.ipToNumber(rowSplit[0]),
 					IPTools.ipToNumber(rowSplit[1]),
@@ -3464,6 +3469,13 @@ const commands = {
 			if (widenSuccesses) this.sendReply(`${widenSuccesses} widens.`);
 		});
 	},
+	adddatacentershelp: [
+		`/adddatacenters [list] - Add datacenters to datacenters.csv`,
+		`/widendatacenters [list] - As above, but don't throw errors if a new range completely covers an old range`,
+		`[list] is in datacenters.csv format: [low],[high],[name],[url] (can be multiline) - example:`,
+		`5.152.192.0,5.152.223.255,Redstation Limited,http://redstation.com/`,
+		`Get datacenter info from whois, [low], [high] are the range in the last inetnum`,
+	],
 
 	disableladder(target, room, user) {
 		if (!this.can('disableladder')) return false;
