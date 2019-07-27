@@ -520,6 +520,30 @@ const commands = {
 		return target;
 	},
 
+	'!shrug': true,
+	shrug(target) {
+		target = target ? ' ' + target + ' ' : '';
+		if (target.startsWith(' /me')) target = target.slice(1);
+		return this.canTalk(target + '¯\\_(ツ)_/¯');
+	},
+	shrughelp: ['/shrug [message] - Sends the given message, if any, appended with ¯\\_(ツ)_/¯'],
+
+	'!tableflip': true,
+	tableflip(target) {
+		target = target ? ' ' + target + ' ' : '';
+		if (target.startsWith(' /me')) target = target.slice(1);
+		return this.canTalk(target + '(╯°□°）╯︵ ┻━┻');
+	},
+	tablefliphelp: ['/tableflip [message] - Sends the given message, if any, appended with (╯°□°）╯︵ ┻━┻'],
+
+	'!tableunflip': true,
+	tableunflip(target) {
+		target = target ? ' ' + target + ' ' : '';
+		if (target.startsWith(' /me')) target = target.slice(1);
+		return this.canTalk(target + '┬──┬◡ﾉ(° -°ﾉ)');
+	},
+	tableunfliphelp: ['/tableunflip [message] - Sends the given message, if any, appended with ┬──┬◡ﾉ(° -°ﾉ)'],
+
 	'!battle': true,
 	'battle!': 'battle',
 	battle(target, room, user, connection, cmd) {
@@ -2564,8 +2588,10 @@ const commands = {
 	},
 	promotehelp: [`/promote [username], [group] - Promotes the user to the specified group. Requires: & ~`],
 
+	untrustuser: 'trustuser',
+	unconfirmuser: 'trustuser',
 	confirmuser: 'trustuser',
-	trustuser(target, room, user) {
+	trustuser(target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help trustuser');
 		if (!this.can('promote')) return;
 
@@ -2578,14 +2604,29 @@ const commands = {
 		if (!userid) return this.parse('/help trustuser');
 		if (!targetUser) return this.errorReply(`User '${name}' is not online.`);
 
-		if (targetUser.trusted) return this.errorReply(`User '${name}' is already trusted.`);
+		if (cmd.startsWith('un')) {
+			if (!targetUser.trusted) return this.errorReply(`User '${name}' is not trusted.`);
+			if (targetUser.group !== Config.groupsranking[0]) {
+				return this.errorReply(`User '${name}' has a global rank higher than trusted.`);
+			}
 
-		targetUser.setGroup(Config.groupsranking[0], true);
-		this.sendReply(`User '${name}' is now trusted.`);
-		this.privateModAction(`${name} was set as a trusted user by ${user.name}.`);
-		this.modlog('TRUSTUSER', userid);
+			targetUser.setGroup(' ');
+			this.sendReply(`User '${name}' is no longer trusted.`);
+			this.privateModAction(`${name} was set to no longer be a trusted user by ${user.name}.`);
+			this.modlog('UNTRUSTUSER', userid);
+		} else {
+			if (targetUser.trusted) return this.errorReply(`User '${name}' is already trusted.`);
+
+			targetUser.setGroup(Config.groupsranking[0], true);
+			this.sendReply(`User '${name}' is now trusted.`);
+			this.privateModAction(`${name} was set as a trusted user by ${user.name}.`);
+			this.modlog('TRUSTUSER', userid);
+		}
 	},
-	trustuserhelp: [`/trustuser [username] - Trusts the user (makes them immune to locks). Requires: & ~`],
+	trustuserhelp: [
+		`/trustuser [username] - Trusts the user (makes them immune to locks). Requires: & ~`,
+		`/untrustuser [username] - Removes the trusted user status from the user. Requires: & ~`,
+	],
 
 	globaldemote: 'demote',
 	demote(target) {
