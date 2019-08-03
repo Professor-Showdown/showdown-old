@@ -782,6 +782,8 @@ class RoomBattle extends RoomGames.RoomGame {
 		if (parentGame && parentGame.onBattleWin) {
 			parentGame.onBattleWin(this.room, winnerid);
 		}
+		// If the room's replay was hidden, disable users from joining after the game is over
+		if (this.room.hideReplay) this.room.modjoin = '%';
 		this.room.update();
 	}
 	/**
@@ -995,6 +997,14 @@ class RoomBattle extends RoomGames.RoomGame {
 		if (user) this.room.auth[user.userid] = Users.PLAYER_SYMBOL;
 		if (user && user.inRooms.has(this.id)) this.onConnect(user);
 		return player;
+	}
+
+	forcedPublic() {
+		if (!this.rated) return;
+		for (const player of this.players) {
+			const user = player.getUser();
+			if (user && user.forcedPublic) return user.forcedPublic;
+		}
 	}
 
 	makePlayer(/** @type {User} */ user) {
