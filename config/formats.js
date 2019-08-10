@@ -228,6 +228,28 @@ let Formats = [
 		],
 	},
 	{
+		name: "[Gen 7] NFE",
+		desc: `Only Pok&eacute;mon that can evolve are allowed.`,
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3648183/">NFE</a>`,
+		],
+
+		mod: 'gen7',
+		searchShow: false,
+		ruleset: ['[Gen 7] OU'],
+		banlist: [
+			'Chansey', 'Doublade', 'Gligar', 'Golbat', 'Gurdurr', 'Magneton', 'Piloswine',
+			'Porygon2', 'Rhydon', 'Scyther', 'Sneasel', 'Type: Null', 'Vigoroth',
+			'Drought', 'Aurora Veil',
+		],
+		onValidateSet(set) {
+			let template = this.getTemplate(set.species || set.name);
+			if (!template.nfe) {
+				return [set.species + " cannot evolve."];
+			}
+		},
+	},
+	{
 		name: "[Gen 7] CAP",
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3621207/">CAP Metagame Discussion</a>`,
