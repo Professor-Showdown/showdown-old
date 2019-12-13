@@ -1078,7 +1078,6 @@ export class Tournament extends Rooms.RoomGame {
 			bracketData: this.getBracketData(),
 		};
 		this.room.add(`|tournament|end|${JSON.stringify(update)}`);
-<<<<<<< HEAD:server/tournaments/index.js
 		this.isEnded = true;
 		if (this.autoDisqualifyTimer) clearTimeout(this.autoDisqualifyTimer);
       // Tournaments Rewards
