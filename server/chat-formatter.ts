@@ -4,7 +4,7 @@
  *
  * Parses formate.
  *
- * @license MIT license
+ * @license MIT
  */
 
 'use strict';
@@ -52,10 +52,11 @@ type SpanType = '_' | '*' | '~' | '^' | '\\' | '<' | '[' | '`' | 'a' | 'spoiler'
 type FormatSpan = [SpanType, number];
 
 class TextFormatter {
-	str: string;
-	buffers: string[];
-	stack: FormatSpan[];
-	isTrusted: boolean;
+	readonly str: string;
+	readonly buffers: string[];
+	readonly stack: FormatSpan[];
+	readonly isTrusted: boolean;
+	/** offset of str that's been parsed so far */
 	offset: number;
 
 	constructor(str: string, isTrusted: boolean = false) {
@@ -94,7 +95,6 @@ class TextFormatter {
 		this.buffers = [];
 		this.stack = [];
 		this.isTrusted = isTrusted;
-		/** offset of str that's been parsed so far */
 		this.offset = 0;
 	}
 	// debugAt(i=0, j=i+1) { console.log(this.slice(0, i) + '[' + this.slice(i, j) + ']' + this.slice(j, this.str.length)); }

@@ -38,7 +38,7 @@ class Blackjack extends Rooms.RoomGame {
 		};
 		this.deck = new BlackjackDeck().shuffle();
 
-		this.id = this.room.id;
+		this.roomid = this.room.roomid;
 		this.title = `Blackjack (${room.title})`;
 		this.blackjack = true;
 		this.state = 'signups';
@@ -78,7 +78,9 @@ class Blackjack extends Rooms.RoomGame {
 	sendInvite() {
 		const change = this.uhtmlChange;
 		const players = Object.keys(this.playerTable);
-		this.room.send(`|uhtml${change}|blackjack-${this.room.gameNumber}|<div class="infobox${this.infoboxLimited}">${this.createdBy} has created a game of Blackjack. ${this.button}<br /><strong>Players (${players.length}):</strong> ${!players.length ? '(None)' : players.join(', ')}</div>`);
+		let playerList = [];
+		for (let player of players) playerList.push(Chat.escapeHTML(this.playerTable[player].name));
+		this.room.send(`|uhtml${change}|blackjack-${this.room.gameNumber}|<div class="infobox${this.infoboxLimited}">${this.createdBy} has created a game of Blackjack. ${this.button}<br /><strong>Players (${players.length}):</strong> ${!players.length ? '(None)' : playerList.join(', ')}</div>`);
 		this.uhtmlChange = 'change';
 	}
 
@@ -108,20 +110,20 @@ class Blackjack extends Rooms.RoomGame {
 	}
 	leaveGame(user) {
 		if (this.state === 'started') return this.errorMessage(user, `You cannot leave this game; it has already started.`);
-		if (!this.playerTable[user.userid]) return this.errorMessage(user, "You are not in this game to leave.");
+		if (!this.playerTable[user.id]) return this.errorMessage(user, "You are not in this game to leave.");
 		this.removePlayer(user);
 		this.sendInvite();
 	}
 	spectate(user) {
 		if (this.spectators[user]) return this.errorMessage(user, `You are already spectating this game.`);
 		if (this.playerTable[user]) return this.errorMessage(user, `You don't need to spectate the game; you're playing the game.`);
-		this.spectators[user.userid] = user.userid;
-		user.sendTo(this.id, `You are now spectating this game.`);
+		this.spectators[user.id] = user.id;
+		user.sendTo(this.roomid, `You are now spectating this game.`);
 	}
 	unspectate(user) {
-		if (!this.spectators[user.userid]) return this.errorMessage(user, `You are already not spectating this game.`);
-		delete this.spectators[user.userid];
-		user.sendTo(this.id, `You are no longer spectating this game.`);
+		if (!this.spectators[user.id]) return this.errorMessage(user, `You are already not spectating this game.`);
+		delete this.spectators[user.id];
+		user.sendTo(this.roomid, `You are no longer spectating this game.`);
 	}
 
 	/**
@@ -168,8 +170,8 @@ class Blackjack extends Rooms.RoomGame {
 			}
 		}
 		for (let spectator of Object.keys(this.spectators)) {
-			spectator = Users(this.spectators[spectator]);
-			if (spectator) spectator.sendTo(this.id, `${message}${this.lastMessage + text}</div>`);
+			spectator = Users.get(this.spectators[spectator]);
+			if (spectator) spectator.sendTo(this.roomid, `${message}${this.lastMessage + text}</div>`);
 		}
 	}
 	clear() {
@@ -192,7 +194,7 @@ class Blackjack extends Rooms.RoomGame {
 		}
 	}
 	slide(user) {
-		user.sendTo(this.id, `|uhtml|blackjack-${this.room.gameNumber}|`);
+		user.sendTo(this.roomid, `|uhtml|blackjack-${this.room.gameNumber}|`);
 		this.display('', null, user.name);
 	}
 	onConnect(user) {
@@ -202,7 +204,7 @@ class Blackjack extends Rooms.RoomGame {
 		} else if (this.state === 'started') {
 			const player = this.playerTable[user];
 			const spectator = this.spectators[user];
-			if (player && user.userid === toID(this.curUser)) { // their turn; send gamelog and game screen
+			if (player && user.id === toID(this.curUser)) { // their turn; send gamelog and game screen
 				player.sendRoom(`${message}${player.gameLog}`);
 				player.sendRoom(player.playScreen.replace('|uhtmlchange|', '|uhtml|'));
 				return;
@@ -210,7 +212,7 @@ class Blackjack extends Rooms.RoomGame {
 				player.sendRoom(`${message}${player.gameLog}`);
 				return;
 			} else if (spectator) { // spectator; send gamelog
-				user.sendTo(this.id, `${message}${this.lastMessage}`);
+				user.sendTo(this.roomid, `${message}${this.lastMessage}`);
 				return;
 			}
 		}
@@ -295,15 +297,16 @@ class Blackjack extends Rooms.RoomGame {
 
 		let header = `The game of blackjack has started${(this.startedBy !== '' ? ` (started by ${this.startedBy})` : ``)}. ${this.slideButton}<br />`;
 		this.state = 'started';
-		for (let player of Object.keys(this.playerTable)) {
-			this.giveCard(this.playerTable[player]);
-			this.giveCard(this.playerTable[player]);
-			this.turnLog += Chat.html`<strong>${this.playerTable[player].name}</strong>: [${this.playerTable[player].cards[0]}] [${this.playerTable[player].cards[1]}] (${this.playerTable[player].points})<br />`;
-		}
 
 		this.giveCard('dealer');
 		this.giveCard('dealer');
 		this.turnLog += `<strong>${this.dealer.name}</strong>: [${this.dealer.cards[0]}]`;
+
+		for (let player of Object.keys(this.playerTable)) {
+			this.giveCard(this.playerTable[player]);
+			this.giveCard(this.playerTable[player]);
+			this.turnLog += Chat.html`<br /><strong>${this.playerTable[player].name}</strong>: [${this.playerTable[player].cards[0]}] [${this.playerTable[player].cards[1]}] (${this.playerTable[player].points})`;
+		}
 
 		this.display(`${header}${this.turnLog}`, true);
 		this.next();
@@ -330,7 +333,7 @@ class Blackjack extends Rooms.RoomGame {
 				this.display(`<strong>Winner${Chat.plural(winners.length)}</strong>: ${winners.join(', ')}`, null, null, null, true);
 			}
 		} else if (this.state === 'signups') {
-			this.send(Chat.html`The bame of blackjack has been ended by ${user.name}, and there are no winners because the game never started.`, true);
+			this.send(Chat.html`The game of blackjack has been ended by ${user.name}, and there are no winners because the game never started.`, true);
 		}
 
 		this.state = 'ended';
@@ -360,7 +363,7 @@ class Blackjack extends Rooms.RoomGame {
 	hit(user) {
 		if (this.state !== 'started') return this.errorMessage(user, `Blackjack hasn't started yet.`);
 		if (!this.playerTable[user]) return this.errorMessage(user, `You aren't a player in this game.`);
-		if (this.curUser !== user.userid) return this.errorMessage(user, `It's not your turn.`);
+		if (this.curUser !== user.id) return this.errorMessage(user, `It's not your turn.`);
 		this.playerTable[user].selfUhtml = 'change';
 		this.playerTable[user].resetTimerTicks();
 
@@ -370,7 +373,7 @@ class Blackjack extends Rooms.RoomGame {
 		const player = this.playerTable[user];
 		if (this.state !== 'started') return this.errorMessage(user, `Blackjack hasn't started yet.`);
 		if (!player) return this.errorMessage(user, `You aren't a player in this game.`);
-		if (this.curUser !== user.userid) return this.errorMessage(user, `It's not your turn.`);
+		if (this.curUser !== user.id) return this.errorMessage(user, `It's not your turn.`);
 		player.status = 'stand';
 		let cards = '';
 		for (let card of player.cards) cards += `[${card}] `;
@@ -557,6 +560,7 @@ exports.commands = {
 		start(target, room, user) {
 			if (!this.can('minigame', null, room)) return;
 			if (!room.game || !room.game.blackjack) return this.errorReply("There is no game of blackjack currently ongoing in this room.");
+			if (room.game.state !== 'signups') return this.errorReply("This game of blackjack has already started.");
 
 			this.privateModAction(`(The game of blackjack was started by ${user.name}.)`);
 			this.modlog(`BLACKJACK START`);
@@ -566,10 +570,11 @@ exports.commands = {
 		end(target, room, user, connection, cmd) {
 			if (!this.can('minigame', null, room)) return;
 			if (!room.game || !room.game.blackjack) return this.errorReply("There is no game of blackjack currently ongoing in this room.");
+			const force = cmd === 'forceend' ? 'forcibly ' : '';
 
 			const end = room.game.end(user, cmd);
 			if (end) {
-				this.privateModAction(`(The game of blackjack was ended by ${user.name}.)`);
+				this.privateModAction(`(The game of blackjack was ${force}ended by ${user.name}.)`);
 				this.modlog(`BLACKJACK END`);
 			}
 		},
@@ -646,3 +651,11 @@ exports.commands = {
 		"/blackjack enable - Allows games of blackjack to be made in the room. Requires: # & ~",
 	],
 };
+exports.roomSettings = room => ({
+	label: "Blackjack",
+	permission: 'editroom',
+	options: [
+		[`disabled`, room.blackjackDisabled || 'blackjack disable'],
+		[`enabled`, !room.blackjackDisabled || 'blackjack enable'],
+	],
+});
