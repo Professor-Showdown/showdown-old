@@ -118,8 +118,8 @@ let Formats = [
 		],
 
 		mod: 'gen8',
-		ruleset: ['[Gen 8] OU', 'NFE Clause'],
-		banlist: ['Doublade', 'Rhydon', 'Type: Null', 'Shadow Tag'],
+		ruleset: ['Obtainable', 'NFE Clause', 'Standard', 'Team Preview'],
+		banlist: ['Doublade', 'Rhydon', 'Type: Null', 'Shadow Tag', 'Baton Pass'],
 		minSourceGen: 8,
 	},
 	{
@@ -375,7 +375,7 @@ let Formats = [
 		ruleset: ['Obtainable', 'Species Clause', 'Nickname Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Dynamax Clause', 'Sleep Clause Mod', 'Endless Battle Clause'],
 		banlist: [
 			'Darmanitan-Galar', 'Eternatus', 'Shedinja', 'Zacian', 'Zamazenta',
-			'Arena Trap', 'Shadow Tag', 'Baton Pass',
+			'Arena Trap', 'Moody', 'Shadow Tag', 'Baton Pass',
 		],
 		minSourceGen: 8,
 		onModifyTemplate(template, target, source, effect) {
