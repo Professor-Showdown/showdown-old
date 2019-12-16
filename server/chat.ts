@@ -336,6 +336,7 @@ export class CommandContext extends MessageContext {
 			return subcontext.parse();
 		}
 		let message: any = this.message;
+                let giveExp = false;
 
 		const commandHandler = this.splitCommand(message);
 
@@ -369,7 +370,10 @@ export class CommandContext extends MessageContext {
 				}
 			}
 
+			//message = this.canTalk(message);
+                       let lastMessageTime = this.user.lastMessageTime;
 			message = this.canTalk(message);
+			if (message && Date.now() > (lastMessageTime + Config.expTimer)) giveExp = true;
 		}
 
 		// Output the message
