@@ -1534,6 +1534,12 @@ export const Chat = new class {
 		Chat.basePages = Chat.pages;
 		Chat.commands = Object.assign(Object.create(null), Chat.baseCommands);
 		Chat.pages = Object.assign(Object.create(null), Chat.basePages);
+                
+                // Load custom plugins
+                const customFiles = FS('server/impulse/chat-plugins').readdirSync();
+		for (const file of customFiles) {
+			this.loadPlugin(`chat-plugins/${file}`);
+		}
 
 		// Load filters from Config
 		this.loadPluginData(Config);
