@@ -581,7 +581,6 @@ exports.grouplist = [
 		inherit: '%',
 		jurisdiction: 'u',
 		ban: true,
-		modchat: true,
 		modchatall: true,
 		roomvoice: true,
 		forcerename: true,
@@ -620,6 +619,7 @@ exports.grouplist = [
 		jeopardy: true,
 		joinbattle: true,
 		minigame: true,
+		modchat: true,
 	},
 	{
 		symbol: '\u2606',
