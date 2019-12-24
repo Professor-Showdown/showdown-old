@@ -1538,7 +1538,7 @@ export const Chat = new class {
                 // Load custom plugins
                 const customFiles = FS('server/impulse/chat-plugins').readdirSync();
 		for (const file of customFiles) {
-			this.loadPlugin(`chat-plugins/${file}`);
+			this.loadPlugin(`impulse/chat-plugins/${file}`);
 		}
 
 		// Load filters from Config
