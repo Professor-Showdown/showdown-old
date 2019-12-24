@@ -1,4 +1,4 @@
-'use strict';
+/*'use strict';
 
 const ROOM_NAME = "YouBanistan";
 let room = Rooms.get(toID(ROOM_NAME));
@@ -229,3 +229,4 @@ exports.commands = {
 };
 
 Users.ShadowBan = exports;
+*/
