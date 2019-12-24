@@ -399,13 +399,6 @@ export class CommandContext extends MessageContext {
 			} else {
 				let emoticons = Server.parseEmoticons(message);
 				if (emoticons && !this.room.disableEmoticons) {
-					/*if (Users.ShadowBan.checkBanned(this.user)) {
-						Users.ShadowBan.addMessage(this.user, "To " + this.room.id, message);
-						if (!Server.ignoreEmotes[this.user.userid]) this.user.sendTo(this.room, (this.room.type === 'chat' ? '|c:|' + (~~(Date.now() / 1000)) + '|' : '|c|') + this.user.getIdentity(this.room.id) + '|/html ' + emoticons);
-						if (Server.ignoreEmotes[this.user.userid]) this.user.sendTo(this.room, (this.room.type === 'chat' ? '|c:|' + (~~(Date.now() / 1000)) + '|' : '|c|') + this.user.getIdentity(this.room.id) + '|' + message);
-						this.room.update();
-						return false;
-					}*/
 					for (let u in this.room.users) {
 						let curUser = Users(u);
 						if (!curUser || !curUser.connected) continue;
@@ -418,11 +411,7 @@ export class CommandContext extends MessageContext {
 					this.room.log.log.push((this.room.type === 'chat' ? (this.room.type === 'chat' ? '|c:|' + (~~(Date.now() / 1000)) + '|' : '|c|') : '|c|') + this.user.getIdentity(this.room.id) + '|' + message);
 					this.room.lastUpdate = this.room.log.length;
 					this.room.messageCount++;
-				} /*else {
-					if (Users.ShadowBan.checkBanned(this.user)) {
-						Users.ShadowBan.addMessage(this.user, "To " + this.room.id, message);
-						this.user.sendTo(this.room, (this.room.type === 'chat' ? '|c:|' + (~~(Date.now() / 1000)) + '|' : '|c|') + this.user.getIdentity(this.room.id) + '|' + message);
-					} */else {
+				} else {
 						this.room.add((this.room.type === 'chat' ? (this.room.type === 'chat' ? '|c:|' + (~~(Date.now() / 1000)) + '|' : '|c|') : '|c|') + this.user.getIdentity(this.room.id) + '|' + message);
 						this.room.messageCount++;
 					}
